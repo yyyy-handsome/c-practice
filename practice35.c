@@ -24,14 +24,14 @@ void sortByScore(struct Student *stu, int n)
 
 int main(void)
 {
-    struct Student stu[5];
+    struct Student stu[5];  //结构体数组
     int i;
 
     for (i = 0; i < 5; i++) {
         scanf("%s %d", stu[i].name, &stu[i].score);
     }
 
-    sortByScore(stu, 5);
+    sortByScore(stu, 5);  //stu是数组有地址，可以给*stu
 
     for (i = 0; i < 5; i++) {
         printf("%s %d\n", stu[i].name, stu[i].score);

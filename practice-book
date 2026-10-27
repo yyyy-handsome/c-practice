@@ -1,0 +1,26 @@
+# include <stdio.h>
+
+int main(void){
+
+    int min = 393;
+    int x=0,y=0,z=0,x1,y1,z1;
+
+    for (x = 1; x <= 393/81; x++){
+        for (y = 1; y <= (393*x)/41; y++){
+            for (z = 1; z <= (393-81*x-411*y)/29; z++){
+                int used = 81*x + 41*y + 29*z;
+                if (used > min) continue;
+                int remin = min - used;
+                if (remin < min){
+                    min = remin;
+                    x1 = x;
+                    y1 = y;
+                    z1 = z;
+                }
+            }
+        }
+    }
+    printf("最短余料:%d cm\n",min);
+    printf("81cm: %d, 41cm: %d, 29cm: %d\n"x1,y1,z1);
+    return 0;
+}
