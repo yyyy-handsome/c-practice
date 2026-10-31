@@ -21,6 +21,130 @@ struct Student {
     int score;
 };
 
+
+void showAll (struct Student stu[], int count){
+    int i;
+
+    if (count == 0){
+        printf("no data\n");
+    } else {
+        for (i = 0; i < count; i++){
+            printf("%s %d %d\n",stu[i].name,stu[i].id,stu[i].score);
+        }
+    }
+}
+
+
+int addStudent (struct Student stu[], int count){      //打印这些信息，并返回值用int
+    if (count >= MAX){
+        printf("list is full\n");
+        return count;                                     //此时超出或等于100，返回count>=100之后下次也添加不了。
+    } else {
+        printf("name id score\n");
+        scanf("%s %d %d",stu[count].name,&stu[count].id,&stu[count].score);    //从0下标开始输入信息，之后count+1，下标变为1；下标最大为99.
+        count++;
+        printf("added\n");
+        
+        return count;
+    }
+}
+
+
+void findById (struct Student stu[], int count){      //打印这些信息，不返回值用void
+    int i,id;
+    int find = 0;
+
+    printf("id: ");
+    scanf("%d",&id);
+
+    for (i = 0; i < count; i++){
+        if (id == stu[i].id){
+            printf("%s %d %d\n",stu[i].name,stu[i].id,stu[i].score);
+            find = 1;
+            break;
+
+        }
+    }
+    if (find == 0) printf("no find\n");
+}
+
+void showStats(struct Student stu[], int count){      //打印这些信息，不返回值用void
+    int sum = 0;
+    int i,max,min;
+
+    if (count ==0){
+        printf("no data\n");
+    } else {
+        for (i = 0; i < count; i++){
+            sum = sum + stu[i].score;
+        }
+
+        max = stu[0].score;
+        min = stu[0].score;
+
+        for (i = 1; i < count; i++){
+            if (max < stu[i].score) max = stu[i].score;
+            if (min > stu[i].score) min = stu[i].score;
+        }
+
+        printf("max = %d  min = %d\n",max,min);
+        printf("count = %d\n",count);
+        printf("avg = %.2f\n",sum*1.0 / count);
+    }
+}
+
+
+void sortByScore (struct Student stu[], int count){        //通过分数排序(降序)，用冒泡
+    int i,j;
+
+    struct Student t;
+
+    if (count == 0){
+        printf("no data\n");
+    } else {
+        for (i = 0; i < count -1; i++){           //n个数只需要排n-1次。
+            for (j = 0; j < count -1 -i; j++){
+                if (stu[j].score < stu[j+1].score){
+                    t = stu[j];
+                    stu[j] = stu[j+1];
+                    stu[j+1] = t;
+                }
+            }
+        }
+        printf("sorted\n");
+    }
+}
+
+ int deleteById (struct Student stu[], int count){       //void 表示不返回任何东西，但删除后 count 变了，必须把它交回 main
+    int id;
+    int i,j;
+    int p = -1;        //p = -1 表示失败
+
+    printf("id:");
+    scanf("%d",&id);
+
+    for (i = 0; i < count; i++){
+        if (id == stu[i].id){
+            p = i;                 //把下标赋值给p,这样可以知道是第几时id相同
+            break;
+        }
+    }
+
+    if (p == -1){
+        printf("no found\n");
+        return count;
+    } else {
+        for (j = p; j < count -1; j++){         //因为上一回合已经找到了id相同时p的下标，所以我们可以从p位开始交换。count-1防止stu[j+1] = stu[100]越界
+            stu[j] = stu[j+1];                 //知道j是我们要删去的学生信息，所以我们可以把后一个的信息赋给前一个实现  若j=1:(a b c d)➡(a c c d)
+        }
+        count--;                              //放外面是因为只想把输入的那个学生的信息给删去！！ 可以删去最后那个下标的元素！！如果放循环里会多次减学生的数量！！
+        printf("deleted\n");
+        
+        return count;
+    }
+}
+
+
 int main(void)
 {
     struct Student stu[MAX];   /* 真正存数据的地方：100 个空包裹 */
@@ -73,116 +197,27 @@ int main(void)
 
         } else if (choice == 1) {
             /* ---------- 新增 ---------- */
-            if (count >= MAX) {        /* 写之前先看还有没有空位 */
-                printf("list is full\n");
-            } else {
-                printf("name id score: ");
-                scanf("%s %d %d", stu[count].name, &stu[count].id, &stu[count].score);
-                count++;
-                printf("added\n");
-            }
+            count = addStudent(stu,count);     //调用函数是为了看添加了几名学生(count)，所以也需要返回值，所以也需要一个变量接住。
 
         } else if (choice == 2) {
             /* ---------- 显示 ---------- */
-            if (count == 0) {
-                printf("no data\n");
-            } else {
-                for (i = 0; i < count; i++) {
-                    printf("%s %d %d\n", stu[i].name, stu[i].id, stu[i].score);
-                }
-            }
+            showAll(stu,count);
 
         } else if (choice == 3) {
             /* ---------- 按学号查询 ---------- */
-            int id;
-            int found = 0;             /* 0 表示还没找到 */
-
-            printf("id: ");
-            scanf("%d", &id);
-
-            for (i = 0; i < count; i++) {
-                if (stu[i].id == id) {
-                    printf("%s %d %d\n", stu[i].name, stu[i].id, stu[i].score);
-                    found = 1;
-                    break;
-                }
-            }
-
-            if (found == 0) {
-                printf("not found\n");
-            }
+            findById(stu,count);
 
         } else if (choice == 4) {
             /* ---------- 统计 ---------- */
-            int sum = 0;
-            int max, min;
-
-            if (count == 0) {
-                printf("no data\n");
-            } else {
-                for (i = 0; i < count; i++) {
-                    sum = sum + stu[i].score;
-                }
-
-                max = stu[0].score;
-                min = stu[0].score;
-                for (i = 1; i < count; i++) {
-                    if (stu[i].score > max) max = stu[i].score;
-                    if (stu[i].score < min) min = stu[i].score;
-                }
-
-                printf("max = %d  min = %d\n", max, min);
-                printf("count = %d\n", count);
-                printf("avg = %.2f\n", sum * 1.0 / count);
-            }
+            showStats (stu,count);
 
         } else if (choice == 5) {
             /* ---------- 按成绩排序（冒泡，降序） ---------- */
-            struct Student t;          /* 临时包裹，类型必须和元素一致 */
-            int j;
-
-            if (count == 0) {
-                printf("no data\n");
-            } else {
-                for (i = 0; i < count - 1; i++) {
-                    for (j = 0; j < count - 1 - i; j++) {
-                        if (stu[j].score < stu[j + 1].score) {
-                            /* 整个包裹一起换，只换 score 会让姓名错位 */
-                            t = stu[j];
-                            stu[j] = stu[j + 1];
-                            stu[j + 1] = t;
-                        }
-                    }
-                }
-                printf("sorted\n");
-            }
+            sortByScore (stu,count);
 
         } else if (choice == 6) {
             /* ---------- 按学号删除 ---------- */
-            int j, p = -1;  //p=-1指的是还没找到在第几个
-            int id;
-
-            printf("id: ");
-            scanf("%d", &id);
-
-            for (i = 0; i < count; i++) {
-                if (stu[i].id == id) {
-                    p = i;               //从p=-1到p=i可以知道此时下标是第几的时候id相同
-                    break;
-                }
-            }
-
-            if (p == -1) {
-                printf("not found\n");
-            } else {
-                /* j 最大到 count-2，这样 stu[j+1] 最大才是 count-1（最后一个有效元素）
-                   如果写成 j < count，最后会读到 stu[count] —— 那是还没用到的空位 */
-                for (j = p; j < count - 1; j++) {
-                    stu[j] = stu[j+1];   //知道j是我们要删去的学生信息，所以我们可以把后一个的信息赋给前一个实现  若j=1:(a b c d)➡(a c c d)
-                }
-                count--;             //放外面是因为只想把输入的那个学生的信息给删去！！ 可以删去最后那个下标的元素！！如果放循环里会多次减学生的数量！！
-                printf("deleted\n");
-            }
+            count = deleteById (stu,count);
 
         } else {
             printf("invalid choice\n");
