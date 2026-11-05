@@ -145,39 +145,104 @@ void sortByScore (struct Student stu[], int count){        //通过分数排序(
 }
 
 
+void modifyScore (struct Student stu[], int count){        //修改学生成绩
+    int id;
+    int i;
+    int found = 0;
+
+    printf("id: ");
+    scanf("%d",&id);
+
+    for (i = 0; i < count; i++){
+        if (stu[i].id == id){
+            printf("old score:%d\n",stu[i].score);
+            printf("new score: ");
+            scanf("%d",&stu[i].score);
+            found = 1;
+            printf("modifyScore success\n");
+            break;
+        }
+    }
+    if (found == 0){
+        printf("no found\n");
+    }
+}
+
+
+
+/* 从数据文件读取学生。
+   maxCount 是数组最多能装多少人，用来防止 count 越界。
+   返回值是真正读到的学生数量；文件不存在时返回 0。 */
+int loadStudents(struct Student stu[], int maxCount)        //maxCount表示可存进去的最大容量
+{
+    FILE *fp;
+    int count = 0;
+
+    /* "r" 表示只读打开；文件不存在时 fopen 返回 NULL。 */
+    fp = fopen(DATA_FILE, "r");
+
+    /* 第一次运行还没有数据文件，这是正常情况，返回 0 条。 */
+    if (fp == NULL) {
+        return 0;
+    }
+
+    /* 两个条件缺一不可：
+       1. count < maxCount：数组还有空位
+       2. fscanf(...) == 3：姓名、学号、成绩三项都读到了
+       任何一边不满足，就停止读取。 */
+    while (count < maxCount &&
+           fscanf(fp, "%s %d %d",
+                  stu[count].name,
+                  &stu[count].id,
+                  &stu[count].score) == 3) {
+        count++;
+    }
+
+    /* 文件用完必须关闭，释放文件资源。 */
+    fclose(fp);
+    printf("loaded %d students from students.txt\n", count);
+
+    return count;   // 把读到的数量交回 main
+}
+
+
+/* 把当前数组里的 count 条学生记录写回文件。
+   "w" 会先清空旧文件，再写入当前完整数据，
+   所以删除过的学生不会残留在文件里。 */
+void saveStudents(struct Student stu[], int count)
+{
+    FILE *fp;
+    int i;
+
+    fp = fopen(DATA_FILE, "w");
+
+    /* 写文件前必须先确认打开成功，否则 fp 是 NULL，不能使用。 */
+    if (fp == NULL) {
+        printf("save failed\n");
+        return;
+    }
+
+    /* 只写有效范围 0 ~ count-1，不能写整个 stu[MAX]。 */
+    for (i = 0; i < count; i++) {
+        fprintf(fp, "%s %d %d\n",
+                stu[i].name,
+                stu[i].id,
+                stu[i].score);
+    }
+
+    /* 关闭文件，缓冲区里的数据才会真正写入磁盘。 */
+    fclose(fp);
+    printf("saved %d students to students.txt\n", count);
+}
+
 int main(void)
 {
     struct Student stu[MAX];   /* 真正存数据的地方：100 个空包裹 */
     int count = 0;             /* 已存数量，同时也是"下一个空位"的下标 */
-    int choice, i;
+    int choice;
 
-    /* FILE 是标准库定义好的"文件"类型，内部结构对我们隐藏。
-       我们只能拿到指向它的指针，也就是下面这个 fp（file pointer）。
-       fp 本身是个指针，很多时候口语里直接叫它"文件句柄"。 */
-    FILE *fp;
-
-    /* ==========================================================
-       启动时：把上次保存的数据读回内存
-
-       fopen(文件名, "r") 以只读方式打开：
-         文件存在   -> 返回可用的 FILE 指针
-         文件不存在 -> 返回 NULL（第一次运行时就是这种情况，正常跳过）
-
-       fscanf 的返回值和 scanf 一样，是"成功读到的项数"：
-         返回 3 说明姓名、学号、成绩都读到了，这一条是完整的；
-         读到文件末尾时返回 EOF，循环自动结束。
-       ========================================================== */
-    fp = fopen(DATA_FILE, "r");    //fopen(文件名, "r") 以只读方式打开：
-    if (fp != NULL) {
-        while (count < MAX &&
-               fscanf(fp, "%s %d %d", stu[count].name,
-                                     &stu[count].id,
-                                     &stu[count].score) == 3) {
-            count++;           /* 成功读一条，数量加一，下一条落到下一格 */
-        }
-        fclose(fp);            /* 用完必须关闭 */
-        printf("loaded %d students from students.txt\n", count);
-    }
+    /* 启动时把文件里的学生读入内存；没有数据文件就得到 0。 */
+    count = loadStudents(stu, MAX);
 
     while (1) {                /* 1 永远为真，所以一直循环，靠 break 退出 */
         printf("\n===== score manager =====\n");
@@ -187,6 +252,7 @@ int main(void)
         printf("4. stats\n");
         printf("5. sort by score\n");
         printf("6. delete by id\n");
+        printf("7. modify score\n");
         printf("0. exit\n");
         printf("choice: ");
 
@@ -219,6 +285,9 @@ int main(void)
             /* ---------- 按学号删除 ---------- */
             count = deleteById (stu,count);
 
+        }else if (choice == 7){
+            /* ---------- 修改成绩 ---------- */
+            modifyScore (stu,count);
         } else {
             printf("invalid choice\n");
         }
@@ -235,16 +304,7 @@ int main(void)
        fprintf 和 printf 的用法完全一样，
        只是第一个参数多了一个"写到哪个文件"。
        ========================================================== */
-    fp = fopen(DATA_FILE, "w");
-    if (fp == NULL) {
-        printf("save failed\n");
-    } else {
-        for (i = 0; i < count; i++) {
-            fprintf(fp, "%s %d %d\n", stu[i].name, stu[i].id, stu[i].score);
-        }
-        fclose(fp);            /* 不关的话，缓冲区里的数据可能没真正写进磁盘 */
-        printf("saved %d students to students.txt\n", count);
-    }
+    saveStudents(stu,count);
 
     printf("bye\n");
     return 0;
