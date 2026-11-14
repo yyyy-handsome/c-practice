@@ -1,14 +1,15 @@
 #include <stdio.h>
+#include <string.h>
 
 /* ============================================================
-   成绩管理系统 v1.1
+   成绩管理系统 v2.2
 
    数据平时放在内存里的结构体数组中；
    退出程序时写进 students.txt，下次启动时再读回来。
    所以关掉程序以后，数据不会丢。
 
    功能：1 新增  2 显示  3 按学号查询  4 统计
-         5 按成绩排序  6 按学号删除  0 退出
+         5 按成绩排序  6 按学号删除   7 修改成绩  8 按姓名查询   0 退出
    ============================================================ */
 
 #define MAX 100          /* 最多能存 100 个学生，写超过就是越界 */
@@ -170,6 +171,31 @@ void modifyScore (struct Student stu[], int count){        //修改学生成绩
 
 
 
+struct Student* findByName (struct Student stu[], int count, char* name)
+{
+    for (int i = 0; i < count; i++){
+        if (strcmp(stu[i].name,name) ==0){                    //strcmp函数是比较两个字符串是否相等，如果相等返回0.  用法时strcmp(字符串1，字符串2)  == 0就是找到相同的
+            return &stu[i];                                  //返回stu[i]的地址，给函数
+        }
+    }
+    return NULL;                                            //如果上述操作找不到相同的字符串(名字) 就返回空指针。
+}
+
+
+void searchByName (struct Student stu[], int count){
+    char name[20];
+    printf("please input name:");
+    scanf("%19s",name);
+    struct Student* found = findByName (stu,count,name);
+
+    if (found != NULL){                                              //如果found成功接收到函数返回来的地址，就打印接受回来的地址里所含的值name id score
+        printf("%s %d %d\n",found->name,found->id,found->score);
+    } else {
+        printf("no found\n");
+    }
+}
+
+
 /* 从数据文件读取学生。
    maxCount 是数组最多能装多少人，用来防止 count 越界。
    返回值是真正读到的学生数量；文件不存在时返回 0。 */
@@ -253,6 +279,7 @@ int main(void)
         printf("5. sort by score\n");
         printf("6. delete by id\n");
         printf("7. modify score\n");
+        printf("8. search and found by name\n");
         printf("0. exit\n");
         printf("choice: ");
 
@@ -288,7 +315,12 @@ int main(void)
         }else if (choice == 7){
             /* ---------- 修改成绩 ---------- */
             modifyScore (stu,count);
-        } else {
+
+        } else if (choice ==8){
+            /* ---------- 按姓名查询----------*/
+            searchByName(stu,count);
+        }
+         else {
             printf("invalid choice\n");
         }
     }

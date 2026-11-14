@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 struct student {
     char name[20];
@@ -97,6 +98,33 @@ struct student* findTop (struct student stu[],int count)
 
 
 
+
+struct student* findByName (struct student stu[], int count, char* name)
+{
+    for (int i = 0; i < count; i++){
+        if (strcmp(stu[i].name,name) ==0){                    //strcmp函数是比较两个字符串是否相等，如果相等返回0.  用法时strcmp(字符串1，字符串2)  == 0就是找到相同的
+            return &stu[i];                                  //返回stu[i]的地址，给函数
+        }
+    }
+    return NULL;                                            //如果上述操作找不到相同的字符串(名字) 就返回空指针。
+}
+
+
+void searchByName (struct student stu[], int count){
+    char name[20];
+    printf("please input name:");
+    scanf("%19s",name);
+    struct student* found = findByName (stu,count,name);
+
+    if (found != NULL){                                              //如果found成功接收到函数返回来的地址，就打印接受回来的地址里所含的值name id score
+        printf("%s %d %d\n",found->name,found->id,found->score);
+    } else {
+        printf("no found\n");
+    }
+}
+
+
+
 int main ()
 {
     struct student stu[100];
@@ -109,6 +137,9 @@ int main ()
 
     sortByScore(stu,count);
     showAll(stu,count);
+
+    searchByName(stu,count);
+
 
     if (saveStudents(stu,count)) {
         printf("saved %d students\n",count);
