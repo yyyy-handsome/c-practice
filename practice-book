@@ -21,6 +21,6 @@ int main(void){
         }
     }
     printf("最短余料:%d cm\n",min);
-    printf("81cm: %d, 41cm: %d, 29cm: %d\n"x1,y1,z1);
+    printf("81cm: %d, 41cm: %d, 29cm: %d\n",x1,y1,z1);
     return 0;
 }

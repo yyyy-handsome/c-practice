@@ -1,0 +1,6 @@
+liming 1001 92
+wanghua 1002 85
+zhangsan 1003 67
+lisi 1004 78
+wangwu 1005 55
+zhaoliu 1006 99

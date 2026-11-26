@@ -1,0 +1,6 @@
+liming 92 PASS
+wanghua 85 PASS
+zhangsan 67 FAIL
+lisi 78 FAIL
+wangwu 55 FAIL
+zhaoliu 99 PASS
